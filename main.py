@@ -4,7 +4,6 @@ import numpy as _np
 import pyautogui as _pag
 import pytesseract as _pyt
 
-
 _c = "bin/title.config"
 _i = "bin/image.png"
 
