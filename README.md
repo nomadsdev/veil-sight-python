@@ -1,56 +1,56 @@
 # VeilSight
 
-**VeilSight** เป็นระบบที่ออกแบบมาเพื่อค้นหาและจัดการกับหน้าต่างในระบบปฏิบัติการ Windows รวมถึงการค้นหารูปภาพบนหน้าจอและการดึงข้อความจากภาพที่พบ โดยใช้เทคโนโลยีต่างๆ เช่น OpenCV, PyAutoGUI, และ Tesseract OCR เพื่อให้สามารถทำงานอัตโนมัติได้อย่างมีประสิทธิภาพ
+**VeilSight** is an advanced tool designed to automate interactions with the Windows operating system by locating windows, finding images on the screen, and extracting text from these images. It integrates various technologies to streamline tasks and enhance productivity.
 
-## ฟีเจอร์
+## Features
 
-- **ค้นหาหน้าต่าง**: ค้นหาหน้าต่างในระบบปฏิบัติการ Windows โดยใช้ชื่อหน้าต่างจากไฟล์คอนฟิก
-- **ค้นหารูปภาพ**: ค้นหารูปภาพที่ต้องการบนหน้าจอและแสดงตำแหน่งที่พบ
-- **ดึงข้อความจากรูปภาพ**: ใช้ Tesseract OCR เพื่อดึงข้อความจากภาพที่พบ โดยรองรับภาษาอังกฤษและภาษาไทย
+- **Window Search**: Locate windows in the Windows operating system using the window title from a configuration file.
+- **Image Search**: Find a specific image on the screen and display its location.
+- **Text Extraction from Images**: Use Tesseract OCR to extract text from the found image, supporting both English and Thai languages.
 
-## การติดตั้ง
+## Installation
 
-1. **ติดตั้งไลบรารีที่จำเป็น**:
+1. **Install the necessary libraries**:
 
     ```bash
     pip install pywin32 opencv-python numpy pyautogui pytesseract
     ```
 
-2. **ติดตั้ง Tesseract OCR**:
+2. **Install Tesseract OCR**:
 
-    - ดาวน์โหลด Tesseract OCR จาก [Tesseract OCR GitHub](https://github.com/tesseract-ocr/tesseract)
-    - ติดตั้ง Tesseract และเพิ่มพาธไปยัง Tesseract ใน `PATH` ของระบบ
+    - Download Tesseract OCR from [Tesseract OCR GitHub](https://github.com/tesseract-ocr/tesseract)
+    - Install Tesseract and add its path to your `PATH` system
 
-## การใช้งาน
+## Usage
 
-1. **กำหนดไฟล์คอนฟิกและรูปภาพ**:
-    - วางไฟล์คอนฟิกที่มีชื่อหน้าต่างใน `bin/title.config`
-    - วางรูปภาพที่ต้องการค้นหาใน `bin/image.png`
+1. **Configure files and images**:
+    - Place the configuration file containing the window title in `bin/title.config`
+    - Place the image to search for in `bin/image.png`
 
-2. **รันสคริปต์**:
-    - ใช้คำสั่ง Python เพื่อรันสคริปต์
+2. **Run the script**:
+    - Use the following Python command to run the script
 
     ```bash
     python script.py
     ```
 
-## โครงสร้างโปรเจ็ค
+## Project Structure
 
-- `script.py`: สคริปต์หลักที่ทำการค้นหาหน้าต่างและรูปภาพ
-- `bin/title.config`: ไฟล์คอนฟิกที่เก็บชื่อหน้าต่างที่ต้องการค้นหา
-- `bin/image.png`: รูปภาพที่ต้องการค้นหาในหน้าจอ
+- `script.py`: The main script that performs window and image search operations.
+- `bin/title.config`: Configuration file storing the window title to search for.
+- `bin/image.png`: The image to search for on the screen.
 
-## การพัฒนา
+## Development
 
-- **การตรวจสอบหน้าต่าง**: ฟังก์ชัน `_f(t)` ใช้สำหรับค้นหาหน้าต่างจากชื่อที่กำหนด
-- **การอ่านไฟล์คอนฟิก**: ฟังก์ชัน `_r(f)` ใช้สำหรับอ่านชื่อหน้าต่างจากไฟล์คอนฟิก
-- **การค้นหารูปภาพ**: ฟังก์ชัน `_f_img(p)` ใช้สำหรับค้นหารูปภาพบนหน้าจอ
-- **การดึงข้อความจากภาพ**: ฟังก์ชัน `_e(p, l)` ใช้สำหรับดึงข้อความจากรูปภาพ
+- **Window Check**: The function `_f(t)` is used to locate a window by its title.
+- **Configuration File Reading**: The function `_r(f)` is used to read the window title from the configuration file.
+- **Image Search**: The function `_f_img(p)` is used to locate an image on the screen.
+- **Text Extraction from Images**: The function `_e(p, l)` is used to extract text from the image.
 
-## การสนับสนุน
+## Support
 
-หากคุณมีคำถามหรือข้อเสนอแนะเกี่ยวกับโปรเจคนี้ คุณสามารถติดต่อผ่าน Issues บน GitHub หรือส่งอีเมลถึงผู้พัฒนา
+If you have any questions or suggestions regarding this project, you can contact through GitHub Issues or email the developer.
 
-## ลิขสิทธิ์
+## License
 
-โปรเจคนี้ได้รับการเผยแพร่ภายใต้ [MIT License]
+This project is licensed under the [MIT License]
