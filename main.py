@@ -20,15 +20,22 @@ def _r(f):
     try:
         with open(f, 'r') as _f:
             t = _f.readline().strip()
+            if not t:
+                raise ValueError("Config file is empty")
         return t
     except FileNotFoundError:
         print(f"File not found: {f}")
+        return None
+    except ValueError as e:
+        print(e)
         return None
 
 def _f_img(p):
     s = _np.array(_pag.screenshot())
     s = _cv2.cvtColor(s, _cv2.COLOR_RGB2BGR)
+    s = _cv2.GaussianBlur(s, (5, 5), 0)
     t = _cv2.imread(p, _cv2.IMREAD_UNCHANGED)
+    t = _cv2.GaussianBlur(t, (5, 5), 0)
     r = _cv2.matchTemplate(s, t, _cv2.TM_CCOEFF_NORMED)
     _, mv, _, ml = _cv2.minMaxLoc(r)
     th = 0.8
@@ -42,7 +49,9 @@ def _f_img(p):
 def _e(p, l="eng+tha"):
     i = _cv2.imread(p)
     g = _cv2.cvtColor(i, _cv2.COLOR_BGR2GRAY)
-    t = _pyt.image_to_string(g, lang=l)
+    _, g = _cv2.threshold(g, 0, 255, _cv2.THRESH_BINARY + _cv2.THRESH_OTSU)
+    config = "--psm 6"
+    t = _pyt.image_to_string(g, lang=l, config=config)
     return t
 
 _wt = _r(_c)
