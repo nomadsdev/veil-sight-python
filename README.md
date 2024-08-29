@@ -7,6 +7,7 @@
 - **Window Search**: Locate windows in the Windows operating system using the window title from a configuration file.
 - **Image Search**: Find a specific image on the screen and display its location.
 - **Text Extraction from Images**: Use Tesseract OCR to extract text from the found image, supporting both English and Thai languages.
+- **Update Logging**: Logs detailed updates about the status of window searches, image searches, and text extraction for better tracking and debugging.
 
 ## Installation
 
@@ -31,12 +32,12 @@
     - Use the following Python command to run the script
 
     ```bash
-    python script.py
+    python main.py
     ```
 
 ## Project Structure
 
-- `script.py`: The main script that performs window and image search operations.
+- `main.py`: The main script that performs window and image search operations.
 - `bin/title.config`: Configuration file storing the window title to search for.
 - `bin/image.png`: The image to search for on the screen.
 
@@ -46,6 +47,7 @@
 - **Configuration File Reading**: The function `_r(f)` is used to read the window title from the configuration file.
 - **Image Search**: The function `_f_img(p)` is used to locate an image on the screen.
 - **Text Extraction from Images**: The function `_e(p, l)` is used to extract text from the image.
+- **Update Logging**: The function **_log_update(message)** is used to log detailed update messages to track the script's activities and errors.
 
 ## Support
 
