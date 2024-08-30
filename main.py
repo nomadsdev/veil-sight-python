@@ -33,35 +33,49 @@ def _r(f):
         return None
 
 def _f_img(p, th=_default_threshold):
-    s = _np.array(_pag.screenshot())
-    s = _cv2.cvtColor(s, _cv2.COLOR_RGB2BGR)
-    s = _cv2.GaussianBlur(s, (5, 5), 0)
-    
-    t = _cv2.imread(p, _cv2.IMREAD_UNCHANGED)
-    if t is None:
-        print(f"Error: Unable to load image from path: {p}")
-        return None
-    
-    t = _cv2.GaussianBlur(t, (5, 5), 0)
-    r = _cv2.matchTemplate(s, t, _cv2.TM_CCOEFF_NORMED)
-    _, mv, _, ml = _cv2.minMaxLoc(r)
-    if mv >= th:
-        print(f"Found image at location: {ml}")
-        return ml
-    else:
-        print("Image not found on screen")
+    try:
+        s = _np.array(_pag.screenshot())
+        s = _cv2.cvtColor(s, _cv2.COLOR_RGB2BGR)
+        s = _cv2.GaussianBlur(s, (5, 5), 0)
+        
+        t = _cv2.imread(p, _cv2.IMREAD_UNCHANGED)
+        if t is None:
+            raise ValueError(f"Unable to load image from path: {p}")
+        
+        t = _cv2.GaussianBlur(t, (5, 5), 0)
+        r = _cv2.matchTemplate(s, t, _cv2.TM_CCOEFF_NORMED)
+        _, mv, _, ml = _cv2.minMaxLoc(r)
+        if mv >= th:
+            print(f"Found image at location: {ml}")
+            return ml
+        else:
+            print("Image not found on screen")
+            return None
+    except Exception as e:
+        print(f"Error in _f_img: {e}")
         return None
 
 def _e(p, l="eng+tha"):
-    i = _cv2.imread(p)
-    g = _cv2.cvtColor(i, _cv2.COLOR_BGR2GRAY)
-    _, g = _cv2.threshold(g, 0, 255, _cv2.THRESH_BINARY + _cv2.THRESH_OTSU)
-    config = "--psm 6"
-    t = _pyt.image_to_string(g, lang=l, config=config)
-    return t
+    try:
+        i = _cv2.imread(p)
+        if i is None:
+            raise ValueError(f"Unable to load image for OCR from path: {p}")
+        
+        g = _cv2.cvtColor(i, _cv2.COLOR_BGR2GRAY)
+        _, g = _cv2.threshold(g, 0, 255, _cv2.THRESH_BINARY + _cv2.THRESH_OTSU)
+        config = "--psm 6"
+        t = _pyt.image_to_string(g, lang=l, config=config)
+        return t
+    except Exception as e:
+        print(f"Error in _e: {e}")
+        return ""
 
 def list_images(folder):
-    return [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
+    try:
+        return [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
+    except FileNotFoundError:
+        print(f"Folder not found: {folder}")
+        return []
 
 def main():
     _wt = _r(_c)
@@ -70,6 +84,10 @@ def main():
         _h = _f(_wt)
         if _h:
             images = list_images(_image_folder)
+            if not images:
+                print("No images found in the folder.")
+                return
+            
             print("Select images to search (separate numbers with commas, or enter 0 for all):")
             for idx, img in enumerate(images):
                 print(f"{idx + 1}: {img}")
@@ -81,8 +99,10 @@ def main():
                 try:
                     indices = list(map(int, selection.split(',')))
                     selected_images = [images[i - 1] for i in indices if 0 < i <= len(images)]
-                except (ValueError, IndexError):
-                    print("Invalid selection")
+                    if not selected_images:
+                        raise ValueError("No valid selections made.")
+                except (ValueError, IndexError) as e:
+                    print(f"Invalid selection: {e}")
                     return
             
             for img_file in selected_images:
