@@ -1,89 +1,34 @@
-import win32gui as _w32g
-import cv2 as _cv2
-import numpy as _np
-import pyautogui as _pag
-import pytesseract as _pyt
+import threading
 import os
+from config_manager import load_config
+from window_manager import find_window
+from file_manager import read_first_line, list_images
+from image_processing import find_image_on_screen, extract_text_from_image
+from result_saver import save_results
 
-_c = "bin/title.config"
-_image_folder = "image/"
-_default_threshold = 0.8
-
-def _f(t):
-    h = _w32g.FindWindow(None, t)
-    if h:
-        print(f"Found window: {t} with handle: {h}")
-        return h
-    else:
-        print(f"No window found with title: {t}")
-        return None
-
-def _r(f):
-    try:
-        with open(f, 'r') as _f:
-            t = _f.readline().strip()
-            if not t:
-                raise ValueError("Config file is empty")
-        return t
-    except FileNotFoundError:
-        print(f"File not found: {f}")
-        return None
-    except ValueError as e:
-        print(e)
-        return None
-
-def _f_img(p, th=_default_threshold):
-    try:
-        s = _np.array(_pag.screenshot())
-        s = _cv2.cvtColor(s, _cv2.COLOR_RGB2BGR)
-        s = _cv2.GaussianBlur(s, (5, 5), 0)
-        
-        t = _cv2.imread(p, _cv2.IMREAD_UNCHANGED)
-        if t is None:
-            raise ValueError(f"Unable to load image from path: {p}")
-        
-        t = _cv2.GaussianBlur(t, (5, 5), 0)
-        r = _cv2.matchTemplate(s, t, _cv2.TM_CCOEFF_NORMED)
-        _, mv, _, ml = _cv2.minMaxLoc(r)
-        if mv >= th:
-            print(f"Found image at location: {ml}")
-            return ml
-        else:
-            print("Image not found on screen")
-            return None
-    except Exception as e:
-        print(f"Error in _f_img: {e}")
-        return None
-
-def _e(p, l="eng+tha"):
-    try:
-        i = _cv2.imread(p)
-        if i is None:
-            raise ValueError(f"Unable to load image for OCR from path: {p}")
-        
-        g = _cv2.cvtColor(i, _cv2.COLOR_BGR2GRAY)
-        _, g = _cv2.threshold(g, 0, 255, _cv2.THRESH_BINARY + _cv2.THRESH_OTSU)
-        config = "--psm 6"
-        t = _pyt.image_to_string(g, lang=l, config=config)
-        return t
-    except Exception as e:
-        print(f"Error in _e: {e}")
-        return ""
-
-def list_images(folder):
-    try:
-        return [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
-    except FileNotFoundError:
-        print(f"Folder not found: {folder}")
-        return []
+def process_image(img_file, folder, ocr_lang):
+    img_path = os.path.join(folder, img_file)
+    print(f"Processing image: {img_path}")
+    location = find_image_on_screen(img_path)
+    if location:
+        text = extract_text_from_image(img_path, language=ocr_lang)
+        print(f"Extracted Text from {img_file}:\n{text}")
+        return (img_file, str(location), text)
+    return None
 
 def main():
-    _wt = _r(_c)
+    config = load_config()
+    image_folder = config.get('Settings', 'image_folder')
+    default_threshold = config.getfloat('Settings', 'default_threshold')
+    default_ocr_language = config.get('Settings', 'ocr_language')
+    config_file = config.get('Settings', 'config_file')
     
-    if _wt:
-        _h = _f(_wt)
-        if _h:
-            images = list_images(_image_folder)
+    window_title = read_first_line(config_file)
+    
+    if window_title:
+        window_handle = find_window(window_title)
+        if window_handle:
+            images = list_images(image_folder)
             if not images:
                 print("No images found in the folder.")
                 return
@@ -105,14 +50,25 @@ def main():
                     print(f"Invalid selection: {e}")
                     return
             
+            print("Select OCR Language (default is 'eng+tha'):")
+            print("1: English")
+            print("2: Thai")
+            print("3: English + Thai")
+            lang_choice = input("Enter your choice: ")
+            lang_map = {"1": "eng", "2": "tha", "3": "eng+tha"}
+            ocr_lang = lang_map.get(lang_choice, default_ocr_language)
+            
+            results = []
+            threads = []
             for img_file in selected_images:
-                img_path = os.path.join(_image_folder, img_file)
-                print(f"Processing image: {img_path}")
-                _il = _f_img(img_path)
-                if _il:
-                    _et = _e(img_path)
-                    print(f"Extracted Text from {img_file}:\n{_et}")
-                    
+                thread = threading.Thread(target=lambda: results.append(process_image(img_file, image_folder, ocr_lang)))
+                thread.start()
+                threads.append(thread)
+            
+            for thread in threads:
+                thread.join()
+            
+            save_results(results)
             print("Program completed.")
         else:
             print("Failed to find window")
