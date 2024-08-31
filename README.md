@@ -1,94 +1,100 @@
 # VeilSight
 
-**VeilSight** is a robust automation tool for Windows designed to streamline repetitive tasks through automation. It supports window detection, image recognition, and text extraction, making it ideal for boosting productivity.
+**VeilSight** is a powerful automation tool designed to enhance productivity on Windows by automating repetitive tasks. With advanced window detection, image recognition, and text extraction capabilities, VeilSight is an ideal solution for those looking to streamline their workflow.
 
 ## Features
 
-- **Window Detection**: Identify specific windows based on titles defined in the configuration file.
-- **Screen Image Search**: Search for and identify specific images on your screen with multi-scale search capability for improved accuracy.
-- **Text Extraction**: Extract text from images using Tesseract OCR, supporting both English and Thai languages.
-- **Multiple Window Support**: Process multiple windows based on titles specified in the configuration file.
-- **Configurable Settings**: Customize settings like window titles, image folder paths, and OCR language preferences in the `config.ini` file.
-- **Enhanced Error Handling**: Includes error handling for file loading, image processing, and configuration issues.
-- **User-Friendly Interaction**: Allows users to select specific images to search or choose all images in the `image/` folder.
-- **Detailed Logging**: Logs actions and errors for debugging and tracking purposes.
+- **Window Detection**: Accurately locate and interact with specific windows using titles defined in a configuration file. Supports exact and partial title matching.
+- **Screen Image Search**: Efficiently search for specific images on your screen using multi-scale and Gaussian blur techniques for enhanced accuracy.
+- **Text Extraction**: Extract text from images using Tesseract OCR with support for multiple languages, including English and Thai.
+- **Multi-Window Support**: Handle multiple windows simultaneously, making it easy to automate tasks across different applications.
+- **Configurable Settings**: Customize window titles, image folder paths, and OCR language preferences using a simple `config.ini` file.
+- **Robust Error Handling**: Comprehensive error management ensures the tool runs smoothly, even in the face of unexpected issues like file loading errors or missing configurations.
+- **User-Friendly Interaction**: Easily select specific images for processing or opt to search all images within a designated folder.
+- **Detailed Logging**: Track actions and errors for troubleshooting and review through comprehensive logging.
 
 ## Installation
 
-1. **Install Required Libraries**:
+### 1. Install Required Libraries
 
-   ```bash
-   pip install pywin32 opencv-python numpy pyautogui pytesseract
-   ```
+Ensure all dependencies are installed by running:
 
-2. **Install Tesseract OCR**:
+```bash
+pip install pywin32 opencv-python numpy pyautogui pytesseract
+```
 
-   - Download and install Tesseract OCR from [Tesseract OCR GitHub](https://github.com/tesseract-ocr/tesseract).
-   - Ensure that Tesseract’s installation path is added to your `PATH` environment variable.
+### 2. Install Tesseract OCR
+
+Download and install Tesseract OCR from [Tesseract OCR GitHub](https://github.com/tesseract-ocr/tesseract). After installation:
+
+- Add Tesseract's installation path to your `PATH` environment variable to ensure it can be called from anywhere.
 
 ## Configuration
 
-1. **Prepare Configuration File**:
-   - Edit the `config.ini` file to specify window titles, image folder paths, default OCR language, and other settings.
-   
-   Example `config.ini`:
-   ```ini
-   [Window]
-   title = Your Window Title
+### 1. Create or Edit the Configuration File
 
-   [Image]
-   folder = image/
+Create a `config.ini` file in the project directory, specifying window titles, image folder paths, and OCR settings. For example:
 
-   [OCR]
-   language = eng+tha
-   ```
+```ini
+[Window]
+title = Your Window Title
 
-2. **Place Images**:
-   - Store the images you want to search for in the folder specified in the `config.ini` file (default is `image/`).
+[Image]
+folder = image/
+
+[OCR]
+language = eng+tha
+```
+
+### 2. Organize Your Images
+
+Place the images you intend to search for within the folder specified in the `config.ini` file (default is `image/`).
 
 ## Usage
 
-1. **Run the Script**:
-   - Execute the script using Python:
+### 1. Run the Script
 
-   ```bash
-   python main.py
-   ```
+Execute the script using Python:
 
-2. **Image Selection**:
-   - The script will prompt you to select images for the search. Choose specific images by entering their corresponding numbers or select all images by entering `0`.
+```bash
+python main.py
+```
 
-3. **Select OCR Language**:
-   - Choose the OCR language before processing images, based on the settings in `config.ini`.
+### 2. Image Selection
+
+You will be prompted to select images for searching. Enter the corresponding numbers to select specific images or enter `0` to select all images in the folder.
+
+### 3. OCR Language Selection
+
+Choose the OCR language for text extraction, as specified in the `config.ini` file.
 
 ## Project Structure
 
-- **`main.py`**: The primary script that orchestrates window detection, image searching, and text extraction.
-- **`config.ini`**: Configuration file where window titles, image folder paths, and OCR settings are defined.
-- **`image/`**: Folder containing images to be used in the screen search.
+- **`main.py`**: The core script that manages window detection, image searching, and text extraction.
+- **`config.ini`**: Configuration file where you define window titles, image folder paths, and OCR settings.
+- **`image/`**: Directory containing images to be used for screen searches.
 
 ## Detailed Functions
 
-- **Window Detection**: `find_window(title)` locates a window based on the title provided.
-- **Configuration File Reading**: `load_config(file_path)` reads window titles and other settings from the `config.ini` file.
-- **Image Search and Processing**: `find_image_on_screen(image_path, threshold)` searches for an image on the screen with multi-scale support and Gaussian blur for accuracy.
-- **Text Extraction**: `extract_text_from_image(image_path, language)` extracts and processes text from images using OCR.
-- **User Interaction and Execution**: The `main()` function manages user input, image processing, and language selection.
-- **Logging**: `save_results(results)` logs detailed updates about the script's activities and errors.
+- **Window Detection**: `find_window(title, exact_match=True)` locates a window by its title with options for exact or partial matching.
+- **Configuration Reading**: `load_config(file_path)` reads settings from the `config.ini` file.
+- **Image Search**: `find_image_on_screen(image_path, threshold=0.8)` searches for an image on the screen with multi-scale support and image processing for increased accuracy.
+- **Text Extraction**: `extract_text_from_image(image_path, language='eng')` extracts text from images using Tesseract OCR.
+- **Result Logging**: `save_results(results, output_file='results.csv')` saves search results, including image locations and extracted text, to a CSV file.
 
 ## Development
 
-To further develop or modify this project:
+To further extend or customize VeilSight:
 
-- **Window Interaction**: Adjust `find_window(title)` for more complex window searches or handle multiple windows.
-- **Image Search Logic**: Enhance `find_image_on_screen(image_path, threshold)` for different image matching techniques or thresholds.
-- **Text Extraction Settings**: Modify `extract_text_from_image(image_path, language)` to fine-tune OCR configurations or support additional languages.
-- **Configuration Management**: Expand or customize `config.ini` to include more settings or parameters.
+- **Window Interaction**: Enhance `find_window` to support more complex scenarios, such as interacting with multiple instances of the same application.
+- **Image Processing**: Improve `find_image_on_screen` by experimenting with different image matching techniques, such as edge detection or feature matching.
+- **OCR Customization**: Modify `extract_text_from_image` to better suit specific OCR tasks or to add support for additional languages.
+- **Advanced Configuration**: Expand the `config.ini` to include more parameters, such as custom image processing options or additional window search criteria.
 
 ## Support
 
-For issues, suggestions, or contributions, please use GitHub Issues or contact the developer directly via email.
+For help, bug reports, or feature requests, please use the GitHub Issues page or contact the developer via email.
 
 ## License
 
-This project is licensed under the MIT License (LICENSE).
+VeilSight is licensed under the MIT License. See the LICENSE file for details.
