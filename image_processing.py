@@ -29,14 +29,20 @@ def find_image_on_screen(image_path, threshold=0.8):
         if found:
             min_loc, scale = found
             print(f"Found image at location: {min_loc} with scale: {scale}")
-            return min_loc
+            return min_loc, scale
         else:
             print("Image not found on screen")
-            return None
+            return None, None
 
+    except FileNotFoundError as fnf_error:
+        print(f"File not found: {fnf_error}")
+        return None, None
+    except ValueError as ve:
+        print(f"Value error: {ve}")
+        return None, None
     except Exception as e:
-        print(f"Error in find_image_on_screen: {e}")
-        return None
+        print(f"Unexpected error in find_image_on_screen: {e}")
+        return None, None
 
 def extract_text_from_image(image_path, language='eng'):
     try:
@@ -46,9 +52,20 @@ def extract_text_from_image(image_path, language='eng'):
         
         gray_image = _cv2.cvtColor(image, _cv2.COLOR_BGR2GRAY)
         _, binary_image = _cv2.threshold(gray_image, 0, 255, _cv2.THRESH_BINARY + _cv2.THRESH_OTSU)
+        
         config = "--psm 6"
         text = _pyt.image_to_string(binary_image, lang=language, config=config)
+        
+        if not text.strip():
+            print("No text extracted from the image.")
+        
         return text
+    except FileNotFoundError as fnf_error:
+        print(f"File not found: {fnf_error}")
+        return ""
+    except ValueError as ve:
+        print(f"Value error: {ve}")
+        return ""
     except Exception as e:
-        print(f"Error in extract_text_from_image: {e}")
+        print(f"Unexpected error in extract_text_from_image: {e}")
         return ""
