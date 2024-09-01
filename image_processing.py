@@ -2,9 +2,13 @@ import cv2 as _cv2
 import pyautogui as _pag
 import numpy as _np
 import pytesseract as _pyt
+import os
 
 def find_image_on_screen(image_path, threshold=0.8):
     try:
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"Image file not found: {image_path}")
+    
         screen = _np.array(_pag.screenshot())
         screen = _cv2.cvtColor(screen, _cv2.COLOR_RGB2BGR)
         screen = _cv2.GaussianBlur(screen, (5, 5), 0)
@@ -17,7 +21,7 @@ def find_image_on_screen(image_path, threshold=0.8):
         
         scales = [1.0, 0.75, 0.5, 0.25]
         found = None
-        
+    
         for scale in scales:
             resized_template = _cv2.resize(template, None, fx=scale, fy=scale)
             result = _cv2.matchTemplate(screen, resized_template, _cv2.TM_CCOEFF_NORMED)
@@ -46,20 +50,23 @@ def find_image_on_screen(image_path, threshold=0.8):
 
 def extract_text_from_image(image_path, language='eng'):
     try:
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"Image file not found: {image_path}")
+
         image = _cv2.imread(image_path)
         if image is None:
             raise ValueError(f"Unable to load image for OCR from path: {image_path}")
         
         gray_image = _cv2.cvtColor(image, _cv2.COLOR_BGR2GRAY)
         _, binary_image = _cv2.threshold(gray_image, 0, 255, _cv2.THRESH_BINARY + _cv2.THRESH_OTSU)
-        
+
         config = "--psm 6"
         text = _pyt.image_to_string(binary_image, lang=language, config=config)
         
         if not text.strip():
             print("No text extracted from the image.")
         
-        return text
+        return text.strip()
     except FileNotFoundError as fnf_error:
         print(f"File not found: {fnf_error}")
         return ""
