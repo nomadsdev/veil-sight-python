@@ -1,4 +1,7 @@
 import win32gui as _w32g
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def find_window_by_title(title, exact_match=True):
     try:
@@ -7,16 +10,16 @@ def find_window_by_title(title, exact_match=True):
         else:
             return find_partial_windows(title)
     except Exception as e:
-        print(f"An error occurred while finding the window: {e}")
+        logging.error(f"An error occurred while finding the window: {e}")
         return []
 
 def find_exact_window(title):
     h = _w32g.FindWindow(None, title)
     if h:
-        print(f"Found window: '{title}' with handle: {h}")
+        logging.info(f"Found window: '{title}' with handle: {h}")
         return [(h, title)]
     else:
-        print(f"No window found with the exact title: '{title}'")
+        logging.info(f"No window found with the exact title: '{title}'")
         return []
 
 def find_partial_windows(title):
@@ -31,11 +34,11 @@ def find_partial_windows(title):
     _w32g.EnumWindows(enum_windows_proc, None)
 
     if matching_windows:
-        print(f"Found {len(matching_windows)} window(s) containing '{title}':")
+        logging.info(f"Found {len(matching_windows)} window(s) containing '{title}':")
         for hwnd, window_title in matching_windows:
-            print(f" - Handle: {hwnd}, Title: '{window_title}'")
+            logging.info(f" - Handle: {hwnd}, Title: '{window_title}'")
     else:
-        print(f"No windows found containing the title: '{title}'")
+        logging.info(f"No windows found containing the title: '{title}'")
 
     return matching_windows
 
