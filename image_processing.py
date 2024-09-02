@@ -4,24 +4,25 @@ import numpy as _np
 import pytesseract as _pyt
 import os
 
-def find_image_on_screen(image_path, threshold=0.8):
+def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
     try:
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image file not found: {image_path}")
     
         screen = _np.array(_pag.screenshot())
         screen = _cv2.cvtColor(screen, _cv2.COLOR_RGB2BGR)
-        screen = _cv2.GaussianBlur(screen, (5, 5), 0)
+        screen = _cv2.GaussianBlur(screen, (blur_radius, blur_radius), 0)
         
         template = _cv2.imread(image_path, _cv2.IMREAD_UNCHANGED)
         if template is None:
             raise ValueError(f"Unable to load image from path: {image_path}")
         
-        template = _cv2.GaussianBlur(template, (5, 5), 0)
+        template = _cv2.GaussianBlur(template, (blur_radius, blur_radius), 0)
         
-        scales = [1.0, 0.75, 0.5, 0.25]
-        found = None
+        if scales is None:
+            scales = [1.0, 0.75, 0.5, 0.25]  # Default scale values
     
+        found = None
         for scale in scales:
             resized_template = _cv2.resize(template, None, fx=scale, fy=scale)
             result = _cv2.matchTemplate(screen, resized_template, _cv2.TM_CCOEFF_NORMED)
