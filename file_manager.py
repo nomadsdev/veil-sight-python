@@ -1,3 +1,8 @@
+import cv2 as _cv2
+import pyautogui as _pag
+import numpy as _np
+import pytesseract as _pyt
+
 def read_first_line(file_path):
     try:
         with open(file_path, 'r') as file:
