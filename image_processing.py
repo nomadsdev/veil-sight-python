@@ -49,7 +49,7 @@ def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
         print(f"Unexpected error in find_image_on_screen: {e}")
         return None, None
 
-def extract_text_from_image(image_path, language='eng'):
+def extract_text_from_image(image_path, language='eng', psm=6):
     try:
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image file not found: {image_path}")
@@ -61,7 +61,7 @@ def extract_text_from_image(image_path, language='eng'):
         gray_image = _cv2.cvtColor(image, _cv2.COLOR_BGR2GRAY)
         _, binary_image = _cv2.threshold(gray_image, 0, 255, _cv2.THRESH_BINARY + _cv2.THRESH_OTSU)
 
-        config = "--psm 6"
+        config = f"--psm {psm}"
         text = _pyt.image_to_string(binary_image, lang=language, config=config)
         
         if not text.strip():
