@@ -1,4 +1,4 @@
-# VeilSight
+### VeilSight
 
 **VeilSight** is a powerful automation tool designed to enhance productivity on Windows by automating repetitive tasks. With advanced window detection, image recognition, and text extraction capabilities, VeilSight is an ideal solution for those looking to streamline their workflow.
 
@@ -36,14 +36,10 @@ Download and install Tesseract OCR from [Tesseract OCR GitHub](https://github.co
 Create a `config.ini` file in the project directory, specifying window titles, image folder paths, and OCR settings. For example:
 
 ```ini
-[Window]
-title = Your Window Title
-
-[Image]
-folder = image/
-
-[OCR]
-language = eng+tha
+[Settings]
+image_folder = image/
+config_file = config.txt
+ocr_language = eng+tha
 ```
 
 ### 2. Organize Your Images
@@ -73,6 +69,11 @@ Choose the OCR language for text extraction, as specified in the `config.ini` fi
 - **`main.py`**: The core script that manages window detection, image searching, and text extraction.
 - **`config.ini`**: Configuration file where you define window titles, image folder paths, and OCR settings.
 - **`image/`**: Directory containing images to be used for screen searches.
+- **`result_saver.py`**: Contains functions for saving search results to a CSV file.
+- **`file_manager.py`**: Manages file operations such as reading lines and listing images.
+- **`config_manager.py`**: Handles loading and validating the configuration file.
+- **`window_manager.py`**: Manages window detection and interaction.
+- **`image_processing.py`**: Contains functions for image searching and text extraction.
 
 ## Detailed Functions
 
@@ -97,4 +98,4 @@ For help, bug reports, or feature requests, please use the GitHub Issues page or
 
 ## License
 
-VeilSight is licensed under the MIT License. See the LICENSE file for details.
+VeilSight is licensed under the MIT License.
