@@ -1,4 +1,4 @@
-### VeilSight
+# VeilSight
 
 **VeilSight** is a powerful automation tool designed to enhance productivity on Windows by automating repetitive tasks. With advanced window detection, image recognition, and text extraction capabilities, VeilSight is an ideal solution for those looking to streamline their workflow.
 
