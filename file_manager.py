@@ -2,16 +2,21 @@ import cv2 as _cv2
 import pyautogui as _pag
 import numpy as _np
 import pytesseract as _pyt
+from pathlib import Path
 
 def read_first_line(file_path):
     try:
-        with open(file_path, 'r') as file:
+        path = Path(file_path)
+        if not path.is_file():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        with path.open('r') as file:
             line = file.readline().strip()
             if not line:
                 raise ValueError(f"File '{file_path}' is empty or only contains whitespace")
         return line
-    except FileNotFoundError:
-        print(f"Error: File not found: {file_path}")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
         return None
     except ValueError as e:
         print(f"Error: {e}")
@@ -21,15 +26,14 @@ def read_first_line(file_path):
         return None
 
 def list_images(folder):
-    import os
-    valid_extensions = ('.png', '.jpg', '.jpeg', '.bmp', '.tiff')
+    valid_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.tiff'}
     try:
-        if not os.path.exists(folder):
+        path = Path(folder)
+        if not path.is_dir():
             raise FileNotFoundError(f"Folder not found: {folder}")
         
-        images = [f for f in os.listdir(folder) 
-                  if os.path.isfile(os.path.join(folder, f)) 
-                  and f.lower().endswith(valid_extensions)]
+        images = [f.name for f in path.iterdir() 
+                  if f.is_file() and f.suffix.lower() in valid_extensions]
         
         if not images:
             print(f"No valid image files found in the folder: {folder}")
