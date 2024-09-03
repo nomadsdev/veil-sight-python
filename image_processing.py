@@ -1,7 +1,6 @@
 import cv2 as _cv2
 import pyautogui as _pag
 import numpy as _np
-import pytesseract as _pyt
 import os
 
 def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
@@ -11,6 +10,7 @@ def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
     
         screen = _np.array(_pag.screenshot())
         screen = _cv2.cvtColor(screen, _cv2.COLOR_RGB2BGR)
+        screen = _cv2.resize(screen, (screen.shape[1] // 2, screen.shape[0] // 2))  # Reduce size
         screen = _cv2.GaussianBlur(screen, (blur_radius, blur_radius), 0)
         
         template = _cv2.imread(image_path, _cv2.IMREAD_UNCHANGED)
@@ -20,7 +20,7 @@ def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
         template = _cv2.GaussianBlur(template, (blur_radius, blur_radius), 0)
         
         if scales is None:
-            scales = [1.0, 0.75, 0.5, 0.25]  # Default scale values
+            scales = [1.0, 0.75, 0.5, 0.25]
     
         found = None
         for scale in scales:
@@ -59,7 +59,7 @@ def extract_text_from_image(image_path, language='eng', psm=6):
             raise ValueError(f"Unable to load image for OCR from path: {image_path}")
         
         gray_image = _cv2.cvtColor(image, _cv2.COLOR_BGR2GRAY)
-        _, binary_image = _cv2.threshold(gray_image, 0, 255, _cv2.THRESH_BINARY + _cv2.THRESH_OTSU)
+        binary_image = _cv2.adaptiveThreshold(gray_image, 255, _cv2.ADAPTIVE_THRESH_GAUSSIAN_C, _cv2.THRESH_BINARY, 11, 2)
 
         config = f"--psm {psm}"
         text = _pyt.image_to_string(binary_image, lang=language, config=config)
