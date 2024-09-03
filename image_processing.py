@@ -10,7 +10,7 @@ def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
     
         screen = _np.array(_pag.screenshot())
         screen = _cv2.cvtColor(screen, _cv2.COLOR_RGB2BGR)
-        screen = _cv2.resize(screen, (screen.shape[1] // 2, screen.shape[0] // 2))  # Reduce size
+        screen = _cv2.resize(screen, (screen.shape[1] // 2, screen.shape[0] // 2))
         screen = _cv2.GaussianBlur(screen, (blur_radius, blur_radius), 0)
         
         template = _cv2.imread(image_path, _cv2.IMREAD_UNCHANGED)
