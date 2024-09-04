@@ -2,6 +2,10 @@ import cv2 as _cv2
 import pyautogui as _pag
 import numpy as _np
 import os
+import pytesseract as _pyt
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
     try:
@@ -33,20 +37,20 @@ def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
 
         if found:
             min_loc, scale = found
-            print(f"Found image at location: {min_loc} with scale: {scale}")
+            logging.info(f"Found image at location: {min_loc} with scale: {scale}")
             return min_loc, scale
         else:
-            print("Image not found on screen")
+            logging.info("Image not found on screen")
             return None, None
 
     except FileNotFoundError as fnf_error:
-        print(f"File not found: {fnf_error}")
+        logging.error(f"File not found: {fnf_error}")
         return None, None
     except ValueError as ve:
-        print(f"Value error: {ve}")
+        logging.error(f"Value error: {ve}")
         return None, None
     except Exception as e:
-        print(f"Unexpected error in find_image_on_screen: {e}")
+        logging.error(f"Unexpected error in find_image_on_screen: {e}")
         return None, None
 
 def extract_text_from_image(image_path, language='eng', psm=6):
@@ -65,15 +69,15 @@ def extract_text_from_image(image_path, language='eng', psm=6):
         text = _pyt.image_to_string(binary_image, lang=language, config=config)
         
         if not text.strip():
-            print("No text extracted from the image.")
+            logging.info("No text extracted from the image.")
         
         return text.strip()
     except FileNotFoundError as fnf_error:
-        print(f"File not found: {fnf_error}")
+        logging.error(f"File not found: {fnf_error}")
         return ""
     except ValueError as ve:
-        print(f"Value error: {ve}")
+        logging.error(f"Value error: {ve}")
         return ""
     except Exception as e:
-        print(f"Unexpected error in extract_text_from_image: {e}")
+        logging.error(f"Unexpected error in extract_text_from_image: {e}")
         return ""
