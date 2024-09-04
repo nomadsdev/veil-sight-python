@@ -1,17 +1,17 @@
 # VeilSight
 
-**VeilSight** is a powerful automation tool designed to enhance productivity on Windows by automating repetitive tasks. With advanced window detection, image recognition, and text extraction capabilities, VeilSight is an ideal solution for those looking to streamline their workflow.
+**VeilSight** is a versatile automation tool designed to boost productivity on Windows by automating repetitive tasks. It provides advanced capabilities for window detection, image recognition, and text extraction, making it an ideal solution for streamlining workflows.
 
 ## Features
 
-- **Window Detection**: Accurately locate and interact with specific windows using titles defined in a configuration file. Supports exact and partial title matching.
-- **Screen Image Search**: Efficiently search for specific images on your screen using multi-scale and Gaussian blur techniques for enhanced accuracy.
+- **Window Detection**: Accurately locate and interact with specific windows using titles defined in a configuration file. Supports both exact and partial title matching.
+- **Screen Image Search**: Efficiently search for specific images on your screen using multi-scale and Gaussian blur techniques to enhance accuracy.
 - **Text Extraction**: Extract text from images using Tesseract OCR with support for multiple languages, including English and Thai.
-- **Multi-Window Support**: Handle multiple windows simultaneously, making it easy to automate tasks across different applications.
-- **Configurable Settings**: Customize window titles, image folder paths, and OCR language preferences using a simple `config.ini` file.
-- **Robust Error Handling**: Comprehensive error management ensures the tool runs smoothly, even in the face of unexpected issues like file loading errors or missing configurations.
-- **User-Friendly Interaction**: Easily select specific images for processing or opt to search all images within a designated folder.
-- **Detailed Logging**: Track actions and errors for troubleshooting and review through comprehensive logging.
+- **Multi-Window Support**: Manage multiple windows simultaneously, facilitating automation across various applications.
+- **Configurable Settings**: Customize window titles, image folder paths, and OCR language preferences via a `config.ini` file.
+- **Robust Error Handling**: Comprehensive error management ensures smooth operation even in the face of issues like missing files or invalid configurations.
+- **User-Friendly Interaction**: Select specific images for processing or opt to search all images within a designated folder.
+- **Detailed Logging**: Track actions and errors through comprehensive logging for easier troubleshooting and review.
 
 ## Installation
 
@@ -33,7 +33,7 @@ Download and install Tesseract OCR from [Tesseract OCR GitHub](https://github.co
 
 ### 1. Create or Edit the Configuration File
 
-Create a `config.ini` file in the project directory, specifying window titles, image folder paths, and OCR settings. For example:
+Create a `config.ini` file in the project directory to specify window titles, image folder paths, and OCR settings. For example:
 
 ```ini
 [Settings]
@@ -85,7 +85,7 @@ Choose the OCR language for text extraction, as specified in the `config.ini` fi
 
 ## Development
 
-To further extend or customize VeilSight:
+To extend or customize VeilSight:
 
 - **Window Interaction**: Enhance `find_window` to support more complex scenarios, such as interacting with multiple instances of the same application.
 - **Image Processing**: Improve `find_image_on_screen` by experimenting with different image matching techniques, such as edge detection or feature matching.
