@@ -41,7 +41,7 @@ def select_images(images):
         return selected_images
     except (ValueError, IndexError) as e:
         logging.error(f"Invalid selection: {e}")
-        return None
+        return []
 
 def select_ocr_language(default_lang):
     print("Select OCR Language (default is 'eng+tha'):")
@@ -55,6 +55,10 @@ def select_ocr_language(default_lang):
 def main():
     try:
         config = load_config()
+        if config is None:
+            logging.error("Failed to load configuration.")
+            return
+        
         image_folder = config.get('Settings', 'image_folder')
         default_ocr_language = config.get('Settings', 'ocr_language')
         config_file = config.get('Settings', 'config_file')
