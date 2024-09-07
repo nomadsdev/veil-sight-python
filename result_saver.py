@@ -1,6 +1,6 @@
-import csv
 import os
 import logging
+import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -22,19 +22,9 @@ def save_results(results, output_file='results.csv'):
             return
 
     try:
-        with open(output_file, mode='w', newline='', encoding='utf-8') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Image File', 'Location', 'Extracted Text'])
+        df = pd.DataFrame(results, columns=['Image File', 'Location', 'Extracted Text'])
 
-            for result in results:
-                if len(result) != 3:
-                    logging.warning(f"Skipping invalid result entry: {result}")
-                    continue
-                if not all(isinstance(item, str) for item in result):
-                    logging.warning(f"Skipping invalid result entry with non-string values: {result}")
-                    continue
-                writer.writerow(result)
-
+        df.to_csv(output_file, index=False, encoding='utf-8')
         logging.info(f"Results successfully saved to '{output_file}'")
 
     except PermissionError:
