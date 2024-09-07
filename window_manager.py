@@ -1,7 +1,15 @@
 import win32gui as _w32g
 import logging
+import ctypes
+from ctypes import wintypes
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+user32 = ctypes.windll.user32
+user32.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+user32.GetWindowTextLengthW.argtypes = [wintypes.HWND]
+user32.IsWindowVisible.argtypes = [wintypes.HWND]
+user32.IsWindowVisible.restype = wintypes.BOOL
 
 def find_window_by_title(titles, exact_match=True):
     if isinstance(titles, str):
@@ -14,7 +22,7 @@ def find_window_by_title(titles, exact_match=True):
                 windows = find_exact_window(title)
             else:
                 windows = find_partial_windows(title)
-            
+
             if windows:
                 results[title] = windows
         except Exception as e:
@@ -39,10 +47,15 @@ def find_partial_windows(title):
     matching_windows = []
 
     def enum_windows_proc(hwnd, param):
-        window_title = _w32g.GetWindowText(hwnd)
-        if window_title and title.lower() in window_title.lower():
-            if is_window_visible(hwnd):
-                matching_windows.append((hwnd, window_title))
+        title_len = user32.GetWindowTextLengthW(hwnd)
+        if title_len > 0:
+            buffer = ctypes.create_unicode_buffer(title_len + 1)
+            user32.GetWindowTextW(hwnd, buffer, title_len + 1)
+            window_title = buffer.value
+
+            if window_title and title.lower() in window_title.lower():
+                if is_window_visible(hwnd):
+                    matching_windows.append((hwnd, window_title))
         return True
 
     _w32g.EnumWindows(enum_windows_proc, None)
@@ -57,7 +70,7 @@ def find_partial_windows(title):
     return matching_windows
 
 def is_window_visible(hwnd):
-    return _w32g.IsWindowVisible(hwnd) == 1
+    return user32.IsWindowVisible(hwnd)
 
 if __name__ == "__main__":
     titles = ["Notepad", "Editor"]
