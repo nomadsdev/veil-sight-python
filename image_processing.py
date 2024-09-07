@@ -5,6 +5,10 @@ import os
 import pytesseract as _pyt
 import logging
 import time
+from concurrent.futures import ThreadPoolExecutor
+import skimage as ski
+from skimage.transform import resize
+from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -96,6 +100,25 @@ def extract_text_from_image(image_path, language='eng', psm=6):
     except Exception as e:
         logging.error(f"Unexpected error in extract_text_from_image: {e}")
         return ""
+
+def find_image_parallel(screen, template, scales, threshold=0.8):
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(match_template_at_scale, screen, template, scale, threshold) for scale in scales]
+        for future in futures:
+            result = future.result()
+            if result:
+                return result
+    return None
+
+def match_template_at_scale(screen, template, scale, threshold):
+    resized_template = resize(template, (template.shape[0] * scale, template.shape[1] * scale), anti_aliasing=True)
+    result = _cv2.matchTemplate(screen, resized_template, _cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = _cv2.minMaxLoc(result)
+    if max_val >= threshold:
+        return max_loc, scale
+    return None
+
+location, scale = find_image_parallel(screen, template, scales=[1.0, 0.75, 0.5])
 
 
 if __name__ == "__main__":
