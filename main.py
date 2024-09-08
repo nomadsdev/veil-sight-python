@@ -80,6 +80,7 @@ def main():
         
         selected_images = select_images(images)
         if not selected_images:
+            logging.info("No images selected for processing.")
             return
         
         ocr_lang = select_ocr_language(default_ocr_language)
@@ -92,8 +93,11 @@ def main():
                 if result:
                     results.append(result)
 
-        save_results(results)
-        logging.info("Program completed successfully.")
+        if results:
+            save_results(results)
+            logging.info("Results saved successfully.")
+        else:
+            logging.info("No results to save.")
     
     except Exception as e:
         logging.error(f"An error occurred: {e}")
