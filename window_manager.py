@@ -18,30 +18,31 @@ def find_window_by_title(titles, exact_match=True):
     results = {}
     for title in titles:
         try:
-            if exact_match:
-                windows = find_exact_window(title)
-            else:
-                windows = find_partial_windows(title)
-
+            windows = find_windows(title, exact_match)
             if windows:
                 results[title] = windows
         except Exception as e:
-            logging.error(f"An error occurred while finding the window titled '{title}': {e}")
+            logging.error(f"Error finding windows with title '{title}': {e}")
 
     return results
 
-def find_exact_window(title):
-    h = _w32g.FindWindow(None, title)
-    if h:
-        if is_window_visible(h):
-            logging.info(f"Found visible window: '{title}' with handle: {h}")
-            return [(h, title)]
-        else:
-            logging.info(f"Found window: '{title}' but it is not visible.")
-            return []
+def find_windows(title, exact_match):
+    if exact_match:
+        return find_exact_window(title)
     else:
-        logging.info(f"No window found with the exact title: '{title}'")
-        return []
+        return find_partial_windows(title)
+
+def find_exact_window(title):
+    hwnd = _w32g.FindWindow(None, title)
+    if hwnd:
+        if is_window_visible(hwnd):
+            logging.info(f"Found visible window: '{title}' with handle: {hwnd}")
+            return [(hwnd, title)]
+        else:
+            logging.info(f"Window '{title}' found but not visible.")
+    else:
+        logging.info(f"No window found with title '{title}'")
+    return []
 
 def find_partial_windows(title):
     matching_windows = []
@@ -53,9 +54,8 @@ def find_partial_windows(title):
             user32.GetWindowTextW(hwnd, buffer, title_len + 1)
             window_title = buffer.value
 
-            if window_title and title.lower() in window_title.lower():
-                if is_window_visible(hwnd):
-                    matching_windows.append((hwnd, window_title))
+            if title.lower() in window_title.lower() and is_window_visible(hwnd):
+                matching_windows.append((hwnd, window_title))
         return True
 
     _w32g.EnumWindows(enum_windows_proc, None)
@@ -65,7 +65,7 @@ def find_partial_windows(title):
         for hwnd, window_title in matching_windows:
             logging.info(f" - Handle: {hwnd}, Title: '{window_title}'")
     else:
-        logging.info(f"No visible windows found containing the title: '{title}'")
+        logging.info(f"No visible windows found containing '{title}'")
 
     return matching_windows
 
