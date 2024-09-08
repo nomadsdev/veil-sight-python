@@ -23,14 +23,11 @@ def save_results(results, output_file='results.csv'):
 
     try:
         df = pd.DataFrame(results, columns=['Image File', 'Location', 'Extracted Text'])
-
         df.to_csv(output_file, index=False, encoding='utf-8')
         logging.info(f"Results successfully saved to '{output_file}'")
 
     except PermissionError:
         logging.error(f"Permission denied: Unable to write to '{output_file}'. Check if the file is open or if you have write permissions.")
-    except FileNotFoundError:
-        logging.error(f"File not found: The path '{output_file}' does not exist.")
     except Exception as e:
         logging.error(f"Unexpected error saving results: {e}")
 
