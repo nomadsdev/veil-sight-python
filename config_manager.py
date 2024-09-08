@@ -4,6 +4,23 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+def validate_path(path, check_type='file'):
+    p = Path(path)
+    if check_type == 'file' and not p.is_file():
+        raise ValueError(f"Invalid file path: {path}")
+    elif check_type == 'dir' and not p.is_dir():
+        raise ValueError(f"Invalid directory path: {path}")
+    return p
+
+def validate_threshold(threshold_str):
+    try:
+        threshold = float(threshold_str.strip())
+        if not (0 <= threshold <= 1):
+            raise ValueError(f"Threshold must be between 0 and 1: {threshold}")
+        return threshold
+    except ValueError:
+        raise ValueError(f"Invalid threshold value: {threshold_str}")
+
 def load_config(file_path='config.ini'):
     config = configparser.ConfigParser()
     path = Path(file_path)
@@ -17,7 +34,7 @@ def load_config(file_path='config.ini'):
         
         if not config.sections():
             raise ValueError(f"No sections found in '{file_path}'")
-        
+
         required_sections = ['Settings']
         required_keys = {
             'Settings': ['image_folder', 'default_threshold', 'ocr_language', 'config_file']
@@ -31,18 +48,10 @@ def load_config(file_path='config.ini'):
                 if key not in config[section]:
                     raise ValueError(f"Missing key: '{key}' in section: '{section}' in '{file_path}'")
 
-        # Load and validate image_folder
-        image_folder = config.get('Settings', 'image_folder').strip()
-        if not Path(image_folder).is_dir():
-            raise ValueError(f"Invalid image folder path: {image_folder}")
+        image_folder = validate_path(config.get('Settings', 'image_folder').strip(), check_type='dir')
         logging.info(f"Image folder path: {image_folder}")
 
-        try:
-            default_threshold = float(config.get('Settings', 'default_threshold').strip())
-            if not (0 <= default_threshold <= 1):
-                raise ValueError(f"Threshold must be between 0 and 1: {default_threshold}")
-        except ValueError:
-            raise ValueError(f"Invalid value for default_threshold in '{file_path}'")
+        default_threshold = validate_threshold(config.get('Settings', 'default_threshold').strip())
         logging.info(f"Default threshold: {default_threshold}")
 
         ocr_language = config.get('Settings', 'ocr_language').strip()
@@ -50,9 +59,7 @@ def load_config(file_path='config.ini'):
             raise ValueError(f"OCR language cannot be empty in '{file_path}'")
         logging.info(f"OCR language: {ocr_language}")
 
-        config_file = config.get('Settings', 'config_file').strip()
-        if not Path(config_file).is_file():
-            raise ValueError(f"Config file path is invalid: {config_file}")
+        config_file = validate_path(config.get('Settings', 'config_file').strip(), check_type='file')
         logging.info(f"Config file: {config_file}")
 
     except ValueError as e:
