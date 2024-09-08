@@ -18,6 +18,7 @@ def read_first_line(file_path):
             line = file.readline().strip()
             if not line:
                 raise ValueError(f"File '{file_path}' is empty or only contains whitespace")
+        logging.debug(f"First line read: {line}")
         return line
     except ValueError as e:
         logging.error(f"Value error: {e}")
@@ -40,6 +41,8 @@ def list_images(folder):
         
         if not images:
             logging.info(f"No valid image files found in the folder: {folder}")
+        else:
+            logging.debug(f"Found {len(images)} images in {folder}")
         
         return images
     except Exception as e:
