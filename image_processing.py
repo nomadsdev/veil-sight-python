@@ -6,16 +6,14 @@ import pytesseract as _pyt
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
-import skimage as ski
 from skimage.transform import resize
-from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
     start_time = time.time()
     try:
-        if not os.path.exists(image_path):
+        if not os.path.isfile(image_path):
             raise FileNotFoundError(f"Image file not found: {image_path}")
 
         screen = _np.array(_pag.screenshot())
@@ -35,41 +33,30 @@ def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
         if scales is None:
             scales = [1.0, 0.75, 0.5, 0.25]
 
-        found = None
-        for scale in scales:
-            resized_template = _cv2.resize(template, None, fx=scale, fy=scale)
-            
-            result = _cv2.matchTemplate(screen, resized_template, _cv2.TM_CCOEFF_NORMED)
-            min_val, max_val, min_loc, max_loc = _cv2.minMaxLoc(result)
-            
-            if max_val >= threshold:
-                found = (max_loc, scale)
-                break
-
+        found = find_image_parallel(screen, template, scales, threshold)
+        
         if found:
             max_loc, scale = found
             logging.info(f"Found image at location: {max_loc} with scale: {scale}")
-            logging.info(f"Time taken: {time.time() - start_time:.2f} seconds")
-            return max_loc, scale
         else:
             logging.info("Image not found on screen")
-            return None, None
+        logging.info(f"Time taken: {time.time() - start_time:.2f} seconds")
+        return found
 
     except FileNotFoundError as fnf_error:
         logging.error(f"File not found: {fnf_error}")
-        return None, None
+        return None
     except ValueError as ve:
         logging.error(f"Value error: {ve}")
-        return None, None
+        return None
     except Exception as e:
         logging.error(f"Unexpected error in find_image_on_screen: {e}")
-        return None, None
-
+        return None
 
 def extract_text_from_image(image_path, language='eng', psm=6):
     start_time = time.time()
     try:
-        if not os.path.exists(image_path):
+        if not os.path.isfile(image_path):
             raise FileNotFoundError(f"Image file not found: {image_path}")
 
         image = _cv2.imread(image_path, _cv2.IMREAD_COLOR)
@@ -82,7 +69,7 @@ def extract_text_from_image(image_path, language='eng', psm=6):
             gray_image, 255, _cv2.ADAPTIVE_THRESH_GAUSSIAN_C, _cv2.THRESH_BINARY, 11, 2
         )
 
-        config = f"--psm {psm}"  # ตั้งค่า OCR psm
+        config = f"--psm {psm}"
         text = _pyt.image_to_string(binary_image, lang=language, config=config)
         
         if not text.strip():
@@ -111,18 +98,15 @@ def find_image_parallel(screen, template, scales, threshold=0.8):
     return None
 
 def match_template_at_scale(screen, template, scale, threshold):
-    resized_template = resize(template, (template.shape[0] * scale, template.shape[1] * scale), anti_aliasing=True)
+    resized_template = resize(template, (int(template.shape[0] * scale), int(template.shape[1] * scale)), anti_aliasing=True)
+    resized_template = _np.array(resized_template * 255, dtype=_np.uint8)  # Convert back to uint8
     result = _cv2.matchTemplate(screen, resized_template, _cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = _cv2.minMaxLoc(result)
     if max_val >= threshold:
         return max_loc, scale
     return None
 
-location, scale = find_image_parallel(screen, template, scales=[1.0, 0.75, 0.5])
-
-
 if __name__ == "__main__":
     location, scale = find_image_on_screen("test_image.png")
-    
     text = extract_text_from_image("test_image.png", language="eng", psm=6)
     logging.info(f"Extracted text: {text}")
