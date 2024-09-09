@@ -40,6 +40,7 @@ def find_image_on_screen(image_path, threshold=0.8, blur_radius=5, scales=None):
             logging.info(f"Found image at location: {max_loc} with scale: {scale}")
         else:
             logging.info("Image not found on screen")
+        
         logging.info(f"Time taken: {time.time() - start_time:.2f} seconds")
         return found
 
@@ -98,15 +99,23 @@ def find_image_parallel(screen, template, scales, threshold=0.8):
     return None
 
 def match_template_at_scale(screen, template, scale, threshold):
-    resized_template = resize(template, (int(template.shape[0] * scale), int(template.shape[1] * scale)), anti_aliasing=True)
-    resized_template = _np.array(resized_template * 255, dtype=_np.uint8)  # Convert back to uint8
-    result = _cv2.matchTemplate(screen, resized_template, _cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, max_loc = _cv2.minMaxLoc(result)
-    if max_val >= threshold:
-        return max_loc, scale
+    try:
+        resized_template = resize(template, (int(template.shape[0] * scale), int(template.shape[1] * scale)), anti_aliasing=True)
+        resized_template = _np.array(resized_template * 255, dtype=_np.uint8)  # Convert back to uint8
+        result = _cv2.matchTemplate(screen, resized_template, _cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = _cv2.minMaxLoc(result)
+        if max_val >= threshold:
+            return max_loc, scale
+    except Exception as e:
+        logging.error(f"Error during matching template at scale {scale}: {e}")
     return None
 
 if __name__ == "__main__":
     location, scale = find_image_on_screen("test_image.png")
+    if location:
+        logging.info(f"Image found at: {location}, scale: {scale}")
+    else:
+        logging.info("Image not found.")
+    
     text = extract_text_from_image("test_image.png", language="eng", psm=6)
     logging.info(f"Extracted text: {text}")
