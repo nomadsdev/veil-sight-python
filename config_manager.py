@@ -6,10 +6,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 def validate_path(path, check_type='file'):
     p = Path(path)
-    if check_type == 'file' and not p.is_file():
-        raise ValueError(f"Invalid file path: {path}")
-    elif check_type == 'dir' and not p.is_dir():
-        raise ValueError(f"Invalid directory path: {path}")
+    if check_type == 'file':
+        if not p.is_file():
+            raise FileNotFoundError(f"Invalid file path: {path}")
+    elif check_type == 'dir':
+        if not p.is_dir():
+            raise NotADirectoryError(f"Invalid directory path: {path}")
     return p
 
 def validate_threshold(threshold_str):
@@ -62,7 +64,7 @@ def load_config(file_path='config.ini'):
         config_file = validate_path(config.get('Settings', 'config_file').strip(), check_type='file')
         logging.info(f"Config file: {config_file}")
 
-    except ValueError as e:
+    except (FileNotFoundError, NotADirectoryError, ValueError) as e:
         logging.error(f"Configuration error: {e}")
         return None
     except Exception as e:
@@ -72,8 +74,9 @@ def load_config(file_path='config.ini'):
     logging.info(f"Configuration loaded successfully from '{file_path}'")
     return config
 
-config = load_config()
-if config:
-    logging.info("Config successfully loaded and ready for use.")
-else:
-    logging.error("Failed to load config.")
+if __name__ == '__main__':
+    config = load_config()
+    if config:
+        logging.info("Config successfully loaded and ready for use.")
+    else:
+        logging.error("Failed to load config.")
