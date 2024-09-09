@@ -2,6 +2,8 @@ import win32gui as _w32g
 import logging
 import ctypes
 from ctypes import wintypes
+from concurrent.futures import ThreadPoolExecutor
+import configparser
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -11,18 +13,26 @@ user32.GetWindowTextLengthW.argtypes = [wintypes.HWND]
 user32.IsWindowVisible.argtypes = [wintypes.HWND]
 user32.IsWindowVisible.restype = wintypes.BOOL
 
+def load_config(file_path):
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    return config
+
 def find_window_by_title(titles, exact_match=True):
     if isinstance(titles, str):
         titles = [titles]
 
     results = {}
-    for title in titles:
-        try:
-            windows = find_windows(title, exact_match)
-            if windows:
-                results[title] = windows
-        except Exception as e:
-            logging.error(f"Error finding windows with title '{title}': {e}")
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(find_windows, title, exact_match) for title in titles]
+
+        for future, title in zip(futures, titles):
+            try:
+                windows = future.result()
+                if windows:
+                    results[title] = windows
+            except Exception as e:
+                logging.error(f"Error finding windows with title '{title}': {e}")
 
     return results
 
@@ -34,28 +44,29 @@ def find_windows(title, exact_match):
 
 def find_exact_window(title):
     hwnd = _w32g.FindWindow(None, title)
-    if hwnd:
-        if is_window_visible(hwnd):
-            logging.info(f"Found visible window: '{title}' with handle: {hwnd}")
-            return [(hwnd, title)]
-        else:
-            logging.info(f"Window '{title}' found but not visible.")
+    if hwnd and is_window_visible(hwnd):
+        logging.info(f"Found visible window: '{title}' with handle: {hwnd}")
+        return [(hwnd, title)]
     else:
-        logging.info(f"No window found with title '{title}'")
+        logging.info(f"No visible window found with title '{title}'")
     return []
 
 def find_partial_windows(title):
+    """ค้นหาหน้าต่างที่มีส่วนหนึ่งของชื่อ"""
     matching_windows = []
 
     def enum_windows_proc(hwnd, param):
-        title_len = user32.GetWindowTextLengthW(hwnd)
-        if title_len > 0:
-            buffer = ctypes.create_unicode_buffer(title_len + 1)
-            user32.GetWindowTextW(hwnd, buffer, title_len + 1)
-            window_title = buffer.value
+        try:
+            title_len = user32.GetWindowTextLengthW(hwnd)
+            if title_len > 0:
+                buffer = ctypes.create_unicode_buffer(title_len + 1)
+                user32.GetWindowTextW(hwnd, buffer, title_len + 1)
+                window_title = buffer.value
 
-            if title.lower() in window_title.lower() and is_window_visible(hwnd):
-                matching_windows.append((hwnd, window_title))
+                if title.lower() in window_title.lower() and is_window_visible(hwnd):
+                    matching_windows.append((hwnd, window_title))
+        except Exception as e:
+            logging.error(f"Error while enumerating windows: {e}")
         return True
 
     _w32g.EnumWindows(enum_windows_proc, None)
@@ -70,10 +81,15 @@ def find_partial_windows(title):
     return matching_windows
 
 def is_window_visible(hwnd):
-    return user32.IsWindowVisible(hwnd)
+    try:
+        return user32.IsWindowVisible(hwnd)
+    except Exception as e:
+        logging.error(f"Error checking window visibility for hwnd {hwnd}: {e}")
+        return False
 
 if __name__ == "__main__":
-    titles = ["Notepad", "Editor"]
+    config = load_config('config.ini')
+    titles = config.get('Settings', 'titles').split(',')
     results = find_window_by_title(titles, exact_match=True)
     for title, windows in results.items():
         logging.info(f"Results for title '{title}':")
