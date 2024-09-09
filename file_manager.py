@@ -24,7 +24,7 @@ def read_first_line(file_path):
         logging.error(f"Value error: {e}")
         return None
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
+        logging.error(f"Unexpected error while reading file: {e}")
         return None
 
 def list_images(folder):
@@ -46,5 +46,14 @@ def list_images(folder):
         
         return images
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
+        logging.error(f"Unexpected error while listing images: {e}")
         return []
+
+if __name__ == '__main__':
+    file_path = 'example.txt'
+    first_line = read_first_line(file_path)
+    logging.info(f"First line of the file: {first_line}")
+    
+    folder_path = 'images'
+    images = list_images(folder_path)
+    logging.info(f"Images in the folder: {images}")
