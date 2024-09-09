@@ -1,6 +1,5 @@
-import threading
-import os
 import logging
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from config_manager import load_config
 from window_manager import find_window
@@ -11,12 +10,12 @@ from result_saver import save_results
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def process_image(img_file, folder, ocr_lang):
-    img_path = os.path.join(folder, img_file)
+    img_path = Path(folder) / img_file
     logging.info(f"Processing image: {img_path}")
     try:
-        location = find_image_on_screen(img_path)
+        location = find_image_on_screen(str(img_path))
         if location:
-            text = extract_text_from_image(img_path, language=ocr_lang)
+            text = extract_text_from_image(str(img_path), language=ocr_lang)
             logging.info(f"Extracted Text from {img_file}:\n{text}")
             return (img_file, str(location), text)
         else:
@@ -27,8 +26,8 @@ def process_image(img_file, folder, ocr_lang):
 
 def select_images(images):
     print("Select images to search (separate numbers with commas, or enter 0 for all):")
-    for idx, img in enumerate(images):
-        print(f"{idx + 1}: {img}")
+    for idx, img in enumerate(images, start=1):
+        print(f"{idx}: {img}")
 
     selection = input("Enter your choice: ")
     if selection == "0":
