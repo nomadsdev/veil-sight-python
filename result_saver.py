@@ -1,5 +1,5 @@
-import os
 import logging
+from pathlib import Path
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -9,13 +9,14 @@ def save_results(results, output_file='results.csv'):
         logging.info("No results to save.")
         return
 
-    if not output_file.lower().endswith('.csv'):
-        output_file += '.csv'
-
-    output_dir = os.path.dirname(output_file)
-    if output_dir and not os.path.exists(output_dir):
+    output_file = output_file if output_file.lower().endswith('.csv') else f"{output_file}.csv"
+    
+    output_path = Path(output_file)
+    output_dir = output_path.parent
+    
+    if output_dir and not output_dir.exists():
         try:
-            os.makedirs(output_dir)
+            output_dir.mkdir(parents=True, exist_ok=True)
             logging.info(f"Created directory: {output_dir}")
         except OSError as e:
             logging.error(f"Error creating directory '{output_dir}': {e}")
@@ -23,9 +24,8 @@ def save_results(results, output_file='results.csv'):
 
     try:
         df = pd.DataFrame(results, columns=['Image File', 'Location', 'Extracted Text'])
-        df.to_csv(output_file, index=False, encoding='utf-8')
+        df.to_csv(output_path, index=False, encoding='utf-8')
         logging.info(f"Results successfully saved to '{output_file}'")
-
     except PermissionError:
         logging.error(f"Permission denied: Unable to write to '{output_file}'. Check if the file is open or if you have write permissions.")
     except Exception as e:
