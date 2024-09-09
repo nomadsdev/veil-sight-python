@@ -12,6 +12,7 @@
 - **Robust Error Handling**: Comprehensive error management ensures smooth operation even in the face of issues like missing files or invalid configurations.
 - **User-Friendly Interaction**: Select specific images for processing or opt to search all images within a designated folder.
 - **Detailed Logging**: Track actions and errors through comprehensive logging for easier troubleshooting and review.
+- **Optimized Performance**: Utilize multi-threading for efficient processing of multiple images simultaneously.
 
 ## Installation
 
@@ -91,6 +92,7 @@ To extend or customize VeilSight:
 - **Image Processing**: Improve `find_image_on_screen` by experimenting with different image matching techniques, such as edge detection or feature matching.
 - **OCR Customization**: Modify `extract_text_from_image` to better suit specific OCR tasks or to add support for additional languages.
 - **Advanced Configuration**: Expand the `config.ini` to include more parameters, such as custom image processing options or additional window search criteria.
+- **Optimized Performance**: Enhance multi-threading capabilities and explore additional optimization techniques to handle larger image datasets more efficiently.
 
 ## Support
 
