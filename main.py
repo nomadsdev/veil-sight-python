@@ -8,16 +8,18 @@ from image_processing import find_image_on_screen, extract_text_from_image
 from result_saver import save_results
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 def process_image(img_file, folder, ocr_lang):
     img_path = Path(folder) / img_file
     logging.info(f"Processing image: {img_path}")
     try:
         location = find_image_on_screen(str(img_path))
         if location:
-            text = extract_text_from_image(str(img_path), language=ocr_lang)
-            logging.info(f"Extracted Text from {img_file}:\n{text}")
-            return (img_file, str(location), text)
+            try:
+                text = extract_text_from_image(str(img_path), language=ocr_lang)
+                logging.info(f"Extracted Text from {img_file}:\n{text}")
+                return (img_file, str(location), text)
+            except Exception as e:
+                logging.error(f"Error extracting text from image {img_file}: {e}")
         else:
             logging.warning(f"Image not found on screen: {img_file}")
     except Exception as e:
