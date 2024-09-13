@@ -17,7 +17,7 @@ def validate_path(path: str, check_type: str = 'file') -> Path:
         raise ValueError(f"Invalid check_type: {check_type}. Use 'file' or 'dir'.")
     return p
 
-def validate_threshold(threshold_str):
+def validate_threshold(threshold_str: str) -> float:
     try:
         threshold = float(threshold_str.strip())
         if not (0 <= threshold <= 1):
@@ -26,7 +26,7 @@ def validate_threshold(threshold_str):
     except ValueError:
         raise ValueError(f"Invalid threshold value: {threshold_str}")
 
-def load_config(file_path='config.ini'):
+def load_config(file_path: str = 'config.ini') -> Optional[configparser.ConfigParser]:
     config = configparser.ConfigParser()
     path = Path(file_path)
     
