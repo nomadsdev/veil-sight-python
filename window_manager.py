@@ -2,7 +2,7 @@ import win32gui as _w32g
 import logging
 import ctypes
 from ctypes import wintypes
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import configparser
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -15,8 +15,12 @@ user32.IsWindowVisible.restype = wintypes.BOOL
 
 def load_config(file_path):
     config = configparser.ConfigParser()
-    config.read(file_path)
-    return config
+    try:
+        config.read(file_path)
+        return config
+    except Exception as e:
+        logging.error(f"Error loading config file '{file_path}': {e}")
+        return None
 
 def find_window_by_title(titles, exact_match=True):
     if isinstance(titles, str):
@@ -24,9 +28,10 @@ def find_window_by_title(titles, exact_match=True):
 
     results = {}
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(find_windows, title, exact_match) for title in titles]
+        futures = {executor.submit(find_windows, title, exact_match): title for title in titles}
 
-        for future, title in zip(futures, titles):
+        for future in as_completed(futures):
+            title = futures[future]
             try:
                 windows = future.result()
                 if windows:
@@ -37,10 +42,8 @@ def find_window_by_title(titles, exact_match=True):
     return results
 
 def find_windows(title, exact_match):
-    if exact_match:
-        return find_exact_window(title)
-    else:
-        return find_partial_windows(title)
+    """ค้นหาหน้าต่างตามชื่อ ถ้าต้องการหาตรงเป๊ะก็จะใช้ exact match"""
+    return find_exact_window(title) if exact_match else find_partial_windows(title)
 
 def find_exact_window(title):
     hwnd = _w32g.FindWindow(None, title)
@@ -52,7 +55,6 @@ def find_exact_window(title):
     return []
 
 def find_partial_windows(title):
-    """ค้นหาหน้าต่างที่มีส่วนหนึ่งของชื่อ"""
     matching_windows = []
 
     def enum_windows_proc(hwnd, param):
@@ -89,9 +91,15 @@ def is_window_visible(hwnd):
 
 if __name__ == "__main__":
     config = load_config('config.ini')
-    titles = config.get('Settings', 'titles').split(',')
-    results = find_window_by_title(titles, exact_match=True)
-    for title, windows in results.items():
-        logging.info(f"Results for title '{title}':")
-        for hwnd, window_title in windows:
-            logging.info(f" - Handle: {hwnd}, Title: '{window_title}'")
+    if config:
+        titles = config.get('Settings', 'titles', fallback='').split(',')
+        if titles:
+            results = find_window_by_title(titles, exact_match=True)
+            for title, windows in results.items():
+                logging.info(f"Results for title '{title}':")
+                for hwnd, window_title in windows:
+                    logging.info(f" - Handle: {hwnd}, Title: '{window_title}'")
+        else:
+            logging.warning("No titles found in config.")
+    else:
+        logging.error("Configuration file could not be loaded.")
