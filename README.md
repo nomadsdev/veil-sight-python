@@ -1,6 +1,6 @@
 # VeilSight
 
-**VeilSight** is a versatile automation tool designed to boost productivity on Windows by automating repetitive tasks. It provides advanced capabilities for window detection, image recognition, and text extraction, making it an ideal solution for streamlining workflows.
+**VeilSight** is a versatile automation tool designed to enhance productivity on Windows by automating repetitive tasks. It offers advanced capabilities for window detection, image recognition, and text extraction, making it an ideal solution for streamlining workflows.
 
 ## Features
 
@@ -34,7 +34,7 @@ Download and install Tesseract OCR from [Tesseract OCR GitHub](https://github.co
 
 ### 1. Create or Edit the Configuration File
 
-Create a `config.ini` file in the project directory to specify window titles, image folder paths, and OCR settings. For example:
+Create a `config.ini` file in the project directory to specify window titles, image folder paths, and OCR settings. Example configuration:
 
 ```ini
 [Settings]
@@ -78,11 +78,11 @@ Choose the OCR language for text extraction, as specified in the `config.ini` fi
 
 ## Detailed Functions
 
-- **Window Detection**: `find_window(title, exact_match=True)` locates a window by its title with options for exact or partial matching.
-- **Configuration Reading**: `load_config(file_path)` reads settings from the `config.ini` file.
-- **Image Search**: `find_image_on_screen(image_path, threshold=0.8)` searches for an image on the screen with multi-scale support and image processing for increased accuracy.
-- **Text Extraction**: `extract_text_from_image(image_path, language='eng')` extracts text from images using Tesseract OCR.
-- **Result Logging**: `save_results(results, output_file='results.csv')` saves search results, including image locations and extracted text, to a CSV file.
+- **Window Detection**: `find_window(title: str, exact_match: bool = True) -> Path` locates a window by its title with options for exact or partial matching.
+- **Configuration Reading**: `load_config(file_path: str) -> Optional[configparser.ConfigParser]` reads settings from the `config.ini` file.
+- **Image Search**: `find_image_on_screen(image_path: str, threshold: float = 0.8) -> bool` searches for an image on the screen with multi-scale support and image processing for increased accuracy.
+- **Text Extraction**: `extract_text_from_image(image_path: str, language: str = 'eng') -> str` extracts text from images using Tesseract OCR.
+- **Result Logging**: `save_results(results: list, output_file: str = 'results.csv') -> None` saves search results, including image locations and extracted text, to a CSV file.
 
 ## Development
 
