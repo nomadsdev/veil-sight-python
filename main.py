@@ -45,11 +45,11 @@ def select_images(images):
         return []
 
 def select_ocr_language(default_lang):
-    print("Select OCR Language (default is 'eng+tha'):")
+    print(f"Select OCR Language (default is '{default_lang}'):")
     print("1: English")
     print("2: Thai")
     print("3: English + Thai")
-    lang_choice = input("Enter your choice: ")
+    lang_choice = input("Enter your choice (default is '3'): ").strip() or "3"
     lang_map = {"1": "eng", "2": "tha", "3": "eng+tha"}
     return lang_map.get(lang_choice, default_lang)
 
