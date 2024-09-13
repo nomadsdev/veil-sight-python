@@ -1,10 +1,11 @@
 from pathlib import Path
 import configparser
 import logging
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def validate_path(path, check_type='file'):
+def validate_path(path: str, check_type: str = 'file') -> Path:
     p = Path(path)
     if check_type == 'file':
         if not p.is_file():
@@ -12,6 +13,8 @@ def validate_path(path, check_type='file'):
     elif check_type == 'dir':
         if not p.is_dir():
             raise NotADirectoryError(f"Invalid directory path: {path}")
+    else:
+        raise ValueError(f"Invalid check_type: {check_type}. Use 'file' or 'dir'.")
     return p
 
 def validate_threshold(threshold_str):
